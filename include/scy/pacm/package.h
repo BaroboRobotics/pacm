@@ -28,7 +28,7 @@ namespace scy {
 namespace pacm {
 	
 
-struct Package: public json::Value
+struct SCYAPI Package: public json::Value
 	/// This class is a JSON representation of an
 	/// package belonging to the PackageManager.
 {	
@@ -78,7 +78,7 @@ struct Package: public json::Value
 //
 
 
-struct RemotePackage: public Package
+struct SCYAPI RemotePackage: public Package
 	/// This class is a JSON representation of an
 	/// package existing on the remote server that
 	/// may be downloaded and installed.
@@ -114,7 +114,7 @@ struct RemotePackage: public Package
 //
 
 
-struct LocalPackage: public Package
+struct SCYAPI LocalPackage: public Package
 	/// This class is a JSON representation of an
 	/// installed local package that exists on the
 	/// file system.
@@ -229,7 +229,7 @@ struct LocalPackage: public Package
 //
 
 
-struct PackagePair
+struct SCYAPI PackagePair
 	/// This class provides pairing of a local and a
 	/// remote package.
 {

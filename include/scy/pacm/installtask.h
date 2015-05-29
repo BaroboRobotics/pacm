@@ -20,7 +20,7 @@
 #ifndef SCY_Pacm_InstallTask_H
 #define SCY_Pacm_InstallTask_H
 
-
+#include "scy/dllexport.h"
 #include "scy/pacm/package.h"
 #include "scy/http/client.h"
 #include "scy/stateful.h"
@@ -35,7 +35,7 @@ namespace pacm {
 class PackageManager;
 
 
-struct InstallationState: public State 
+struct SCYAPI InstallationState: public State 
 {
 	enum Type 
 	{
@@ -65,7 +65,7 @@ struct InstallationState: public State
 };
 
 
-struct InstallOptions 
+struct SCYAPI InstallOptions 
 	// Package installation options.
 {
 	std::string version;			// If set then the given package version will be installed.
@@ -83,7 +83,7 @@ struct InstallOptions
 };
 
 
-class InstallTask: 
+class SCYAPI InstallTask: 
 	public async::Runnable, 
 	public Stateful<InstallationState>
 	///

@@ -49,7 +49,7 @@ typedef LiveCollection<std::string, RemotePackage>	RemotePackageStore;
 typedef RemotePackageStore::Map						RemotePackageMap;
 
 
-class PackageManager
+class SCYAPI PackageManager
 	/// The Package Manager provides an interface for managing, 
 	/// installing, updating and uninstalling Pacm packages.
 {

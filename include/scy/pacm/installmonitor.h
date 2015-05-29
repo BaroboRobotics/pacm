@@ -20,7 +20,7 @@
 #ifndef SCY_Pacm_InstallMonitor_H
 #define SCY_Pacm_InstallMonitor_H
 
-
+#include "scy/dllexport.h"
 #include "scy/pacm/installtask.h"
 
 
@@ -31,7 +31,7 @@ namespace pacm {
 typedef std::vector<LocalPackage*> LocalPackageVec;
 
 
-class InstallMonitor
+class SCYAPI InstallMonitor
 {
 public:	
 	InstallMonitor();
