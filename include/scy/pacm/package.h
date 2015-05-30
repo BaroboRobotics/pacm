@@ -132,9 +132,7 @@ struct SCYAPI LocalPackage: public Package
 		//virtual void addDir(const std::string& path);
 		
 		json::Value& root;
-
-	private:
-		Manifest& operator = (const Manifest&) {}
+		Manifest& operator = (const Manifest&) = delete;
 	};
 
 	LocalPackage();
