@@ -232,7 +232,7 @@ Package::Asset RemotePackage::assetVersion(const std::string& version)
 		throw std::runtime_error("Package has no assets");
 
 	int index = -1;
-	for (int i = 1; i < static_cast<int>(assets.size()); i++) {
+	for (int i = 0; i < static_cast<int>(assets.size()); i++) {
 		if (assets[i]["version"].asString() == version) {
 			index = i;
 			break;
@@ -253,7 +253,7 @@ Package::Asset RemotePackage::latestSDKAsset(const std::string& version)
 		throw std::runtime_error("Package has no assets");
 
 	int index = -1;
-	for (int i = 1; i < static_cast<int>(assets.size()); i++) {	
+	for (int i = 0; i < static_cast<int>(assets.size()); i++) {	
 		if (assets[i]["sdk-version"].asString() == version && (index == -1 || (
 			assets[index]["sdk-version"].asString() != version || 
 			util::compareVersion(assets[i]["version"].asString(), assets[index]["version"].asString())))) {
@@ -261,8 +261,9 @@ Package::Asset RemotePackage::latestSDKAsset(const std::string& version)
 		}
 	}
 	
-	if (index == -1)
+	if (index == -1) {
 		throw std::runtime_error("No package asset with SDK version " + version);
+	}
 	
 	return Asset(assets[index]);
 }
