@@ -101,6 +101,7 @@ void PackageManager::queryRemotePackages()
 		conn->Complete += sdelegate(this, &PackageManager::onPackageQueryResponse);		
 		conn->request().setMethod("GET");
 		conn->request().setKeepAlive(false);
+		conn->request().set("User-Agent", SCY_PACKAGE_STRING);
 		conn->setReadStream(new std::stringstream);
 		
 		// OAuth authentication
