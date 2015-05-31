@@ -63,7 +63,6 @@ struct SCYAPI Package: public json::Value
 
 	virtual std::string id() const;
 	virtual std::string name() const;
-	virtual std::string type() const;
 	virtual std::string author() const;
 	virtual std::string description() const;
 
@@ -237,7 +236,6 @@ struct SCYAPI PackagePair
 
 	std::string id() const;
 	std::string name() const;
-	std::string type() const;
 	std::string author() const;
 	
 	//virtual bool hasAvailableUpdates();

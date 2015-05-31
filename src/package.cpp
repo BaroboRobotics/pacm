@@ -53,20 +53,13 @@ Package::~Package()
 bool Package::valid() const
 {
 	return !id().empty()
-		&& !name().empty()
-		&& !type().empty();
+		&& !name().empty();
 }
 
 
 std::string Package::id() const
 {
 	return (*this)["id"].asString();
-}
-
-
-std::string Package::type() const
-{
-	return (*this)["type"].asString();
 }
 
 
@@ -542,12 +535,6 @@ std::string PackagePair::id() const
 std::string PackagePair::name() const
 {
 	return local ? local->name() : remote ? remote->name() : "";
-}
-
-
-std::string PackagePair::type() const
-{
-	return local ? local->type() : remote ? remote->type() : "";
 }
 
 
