@@ -124,13 +124,7 @@ std::string Package::Asset::sdkVersion() const
 
 std::string Package::Asset::checksum() const
 {
-	return root.get("checksum", "").asString();
-}
-
-
-std::string Package::Asset::url(int index) const
-{
-	return root["mirrors"][index]["url"].asString();
+	return root.get("md5", "").asString();
 }
 
 
@@ -143,8 +137,7 @@ int Package::Asset::fileSize() const
 bool Package::Asset::valid() const
 {
 	return root.isMember("file-name")
-		&& root.isMember("version")
-		&& root.isMember("mirrors");
+		&& root.isMember("version");
 }
 
 

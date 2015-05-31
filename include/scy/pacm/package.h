@@ -44,7 +44,6 @@ struct SCYAPI Package: public json::Value
 		virtual std::string version() const;
 		virtual std::string sdkVersion() const;
 		virtual std::string checksum() const;
-		virtual std::string url(int index = 0) const;
 		virtual int fileSize() const;
 
 		virtual bool valid() const;

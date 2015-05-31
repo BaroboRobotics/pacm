@@ -27,6 +27,7 @@
 #include "scy/logger.h"
 #include "scy/filesystem.h"
 
+#include <boost/filesystem.hpp>
 
 using namespace std;
 
@@ -201,7 +202,10 @@ void InstallTask::doDownload()
 	*/
 
 	std::string outfile = _manager.getCacheFilePath(asset.fileName());
-	_dlconn = http::Client::instance().createConnection(asset.url(), _loop);
+	auto url = _manager.options().endpoint + _manager.options().indexURI;
+	auto i = url.find_last_of("/");
+	url = url.substr(0, i + 1) + asset.fileName();
+	_dlconn = http::Client::instance().createConnection(url, _loop);
 	_dlconn->request().set("User-Agent", SCY_PACKAGE_STRING);
 	if (!_manager.options().httpUsername.empty()) {
 		http::BasicAuthenticator cred(
@@ -211,7 +215,7 @@ void InstallTask::doDownload()
 	}
 	
 	DebugL << "Initializing download" 
-		<< ": URI=" << asset.url()
+		<< ": URI=" << url
 		<< ", File path=" << outfile
 		<< endl;
 
@@ -291,12 +295,43 @@ void InstallTask::doExtract()
 	}
 }
 
+namespace bfs = boost::filesystem;
+
+static bfs::path relativeTo(bfs::path from, bfs::path to)
+{
+   // Start at the root path and while they are the same then do nothing then when they first
+   // diverge take the remainder of the two path and replace the entire from path with ".."
+   // segments.
+   bfs::path::const_iterator fromIter = from.begin();
+   bfs::path::const_iterator toIter = to.begin();
+
+   // Loop through both
+   while (fromIter != from.end() && toIter != to.end() && (*toIter) == (*fromIter))
+   {
+      ++toIter;
+      ++fromIter;
+   }
+
+   bfs::path finalPath;
+   while (fromIter != from.end())
+   {
+      finalPath /= "..";
+      ++fromIter;
+   }
+
+   while (toIter != to.end())
+   {
+      finalPath /= *toIter;
+      ++toIter;
+   }
+
+   return finalPath;
+}
 
 void InstallTask::doFinalize() 
 {
 	setState(this, InstallationState::Finalizing);
 
-	bool errors = false;
 	std::string tempDir(_manager.getPackageDataDir(_local->id()));
 	std::string installDir = options().installDir;
 
@@ -304,48 +339,67 @@ void InstallTask::doFinalize()
 	fs::mkdirr(installDir);
 	DebugL << "Finalizing to: " << installDir << endl;
 	
-	// Move all extracted files to the installation path
-	StringVec nodes;
-	fs::readdir(tempDir, nodes);
-	for (unsigned i = 0; i < nodes.size(); i++) {
-		try {
-			std::string source(tempDir);
-			fs::addnode(source, nodes[i]);
-
-			std::string target(installDir);
-			fs::addnode(target, nodes[i]);
-
-			DebugL << "moving file: " << source << " => " << target << endl;
-			fs::rename(source, target);
-		}
-		catch (std::exception& exc) {
-			// The previous version files may be currently in use,
-			// in which case PackageManager::finalizeInstallations()
-			// must be called from an external process before the
-			// installation can be completed.
-			errors = true;
-			ErrorL << "finalize error: " << exc.what() << endl;
-			_local->addError(exc.what());
+	std::list<bfs::path> movedFiles;
+	try {
+		// Move all extracted files to the installation path
+		auto iter = bfs::recursive_directory_iterator(tempDir);
+		for (auto source : bfs::recursive_directory_iterator(tempDir)) {
+			auto target = bfs::path(installDir) / relativeTo(tempDir, source);
+			if (bfs::exists(target)) {
+				if (bfs::is_directory(source) && bfs::is_directory(target)) {
+					DebugL << "Skipping creation of existing directory " << target << endl;
+				}
+				else {
+					throw std::runtime_error(target.string<std::string>() + " already exists");
+				}
+			}
+			else {
+				if (bfs::is_directory(source)) {
+					bfs::create_directories(target);
+				}
+				else {
+					DebugL << "Moving file: " << source << " => " << target << endl;
+					bfs::rename(source, target);
+					movedFiles.push_back(target);
+				}
+			}
 		}
 	}
+	catch (std::exception& e) {
+		// The previous version files may be currently in use,
+		// in which case PackageManager::finalizeInstallations()
+		// must be called from an external process before the
+		// installation can be completed.
+		ErrorL << "finalize error: " << e.what() << endl;
 
-	// The package requires finalizing at a later date. 
-	// The current task will be cancelled, and the package
-	// saved with the Installing state.
-	if (errors) {
+		DebugL << "Removing previously installed files" << endl;
+		for (auto f : movedFiles) {
+			boost::system::error_code ec;
+			bfs::remove(f, ec);
+			if (ec) {
+				DebugL << "Error removing " << f << endl;
+			}
+		}
+
 		DebugL << "Finalization failed, cancelling task" << endl;
+		_local->addError(e.what());
 		cancel();
-		return;
+		// The package requires finalizing at a later date. 
+		// The current task will be cancelled, and the package
+		// saved with the Installing state.
+		throw;
 	}
 	
 	// Remove the temporary output folder if the installation
 	// was successfully finalized.
 	try {		
 		DebugL << "Removing temp directory: " << tempDir << endl;
-
+		bfs::remove_all(tempDir);
+#if 0
 		// FIXME: How to remove a folder properly?
 		fs::unlink(tempDir);
 		assert(fs::exists(tempDir));
+#endif
 	}
 	catch (std::exception& exc) {
 		// While testing on a windows system this fails regularly
