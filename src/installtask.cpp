@@ -202,6 +202,7 @@ void InstallTask::doDownload()
 
 	std::string outfile = _manager.getCacheFilePath(asset.fileName());
 	_dlconn = http::Client::instance().createConnection(asset.url(), _loop);
+	_dlconn->request().set("User-Agent", SCY_PACKAGE_STRING);
 	if (!_manager.options().httpUsername.empty()) {
 		http::BasicAuthenticator cred(
 			_manager.options().httpUsername, 
