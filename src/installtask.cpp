@@ -202,7 +202,7 @@ void InstallTask::doDownload()
 	*/
 
 	std::string outfile = _manager.getCacheFilePath(asset.fileName());
-	auto url = _manager.options().endpoint + _manager.options().indexURI;
+	auto url = _manager.options().remoteUrl;
 	auto i = url.find_last_of("/");
 	url = url.substr(0, i + 1) + asset.fileName();
 	_dlconn = http::Client::instance().createConnection(url, _loop);

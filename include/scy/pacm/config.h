@@ -25,22 +25,11 @@ namespace scy {
 namespace pacm {
 
 	
-#define DEFAULT_API_ENDPOINT "http://localhost:3000"
-#define DEFAULT_API_INDEX_URI "/packages.json"
+#define DEFAULT_API_REMOTE_URL "http://localhost:3000/packages.json"
 #define DEFAULT_PACKAGE_INSTALL_DIR "pacm/install"
 #define DEFAULT_PACKAGE_DATA_DIR "pacm/data"
 #define DEFAULT_PACKAGE_TEMP_DIR "pacm/tmp"
 #define DEFAULT_CHECKSUM_ALGORITHM "MD5"
-
-#ifdef _WIN32
-#define DEFAULT_PLATFORM "win32"
-#elif __APPLE__
-#define DEFAULT_PLATFORM "mac"
-#elif __linux__
-#define DEFAULT_PLATFORM "linux"
-#else
-#error "Unknown platform"
-#endif
 
 
 } } // namespace scy::pacm

@@ -91,13 +91,13 @@ void PackageManager::queryRemotePackages()
 {	
 	Mutex::ScopedLock lock(_mutex);	
 	DebugL << "Querying server: " 
-		<< _options.endpoint << _options.indexURI << endl;
+		<< _options.remoteUrl << endl;
 
 	if (!_tasks.empty())
 		throw std::runtime_error("Cannot load packages while tasks are active.");	
 
 	try {
-		auto conn = http::Client::instance().createConnection(_options.endpoint + _options.indexURI);
+		auto conn = http::Client::instance().createConnection(_options.remoteUrl);
 		conn->Complete += sdelegate(this, &PackageManager::onPackageQueryResponse);		
 		conn->request().setMethod("GET");
 		conn->request().setKeepAlive(false);
@@ -330,9 +330,15 @@ Package::Asset PackageManager::getLatestInstallableAsset(const PackagePair& pair
 		if (!pair.local->sdkLockedVersion().empty() && sdkVersion != pair.local->sdkLockedVersion())
 			throw std::runtime_error("Invalid SDK version option: Package already locked at SDK version: " + pair.local->sdkLockedVersion());
 		
-		// Get the latest asset for SDK version or throw
-		Package::Asset sdkAsset = pair.remote->latestSDKAsset(sdkVersion);
-		assert(sdkAsset.sdkVersion() == sdkVersion);
+		auto sdkVersioned = !(*pair.remote)["sdk-versioned"].empty();
+		auto sdkAsset = sdkVersioned
+			? pair.remote->latestSDKAsset(sdkVersion)
+			: pair.remote->latestAsset();
+
+		if (sdkVersioned) {
+			// Get the latest asset for SDK version or throw
+			assert(sdkAsset.sdkVersion() == sdkVersion);
+		}
 
 		// Throw if there are no newer assets for the locked version
 		if (isInstalledAndVerified && !util::compareVersion(sdkAsset.version(), pair.local->version()))

@@ -57,8 +57,7 @@ public:
 	struct Options 
 		// Package manager initialization options.
 	{
-		std::string endpoint;           // The HTTP server endpoint
-		std::string indexURI;           // The HTTP server URI for querying packages JSON
+		std::string remoteUrl;          // The HTTP server URL for querying packages JSON
 		std::string httpUsername;       // Username for HTTP basic auth
 		std::string httpPassword;       // PAssword for HTTP basic auth
 		std::string httpOAuthToken;     // Will be used instead of HTTP basic if provided
@@ -67,7 +66,6 @@ public:
 		std::string dataDir;            // Directory where package manifests will be kept
 		std::string installDir;         // Directory where packages will be installed
 				
-		std::string platform;           // Platform (win32, linux, mac)
 		std::string checksumAlgorithm;  // Checksum algorithm (MDS/SHA1)
 
 		bool clearFailedCache;          // This flag tells the package manager weather or not
@@ -77,9 +75,7 @@ public:
 			tempDir				    = root + fs::separator + DEFAULT_PACKAGE_TEMP_DIR;
 			dataDir				    = root + fs::separator + DEFAULT_PACKAGE_DATA_DIR;
 			installDir				= root + fs::separator + DEFAULT_PACKAGE_INSTALL_DIR;
-			endpoint				= DEFAULT_API_ENDPOINT;
-			indexURI				= DEFAULT_API_INDEX_URI;
-			platform				= DEFAULT_PLATFORM;
+			remoteUrl				= DEFAULT_API_REMOTE_URL;
 			checksumAlgorithm       = DEFAULT_CHECKSUM_ALGORITHM;
 			clearFailedCache		= true;
 		}
